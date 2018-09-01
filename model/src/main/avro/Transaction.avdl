@@ -1,0 +1,12 @@
+@namespace ("com.amazonaws.model")
+protocol Transaction {
+  record Transaction {
+    string id;
+    double amount;
+    string fromAccount;
+    string toAccount;
+    string desc;
+    @logicalType("timestamp-micros")
+    long timestamp;
+  }
+}
