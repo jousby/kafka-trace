@@ -14,7 +14,7 @@ lazy val root = project
       scalaVersion := "2.12.4",
       version      := "0.1.0-SNAPSHOT",
       resolvers    := Seq(cakeRepo, confluentRepo),
-      scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature")
+      scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature"),
     )),
     name := "kafka-trace",
   )
@@ -43,6 +43,10 @@ lazy val trafficSimulator = project
       akkaTestKit % Test,
       scalaMock % Test,
       scalaTest % Test
+    ),
+    excludeDependencies ++= Seq(
+      "org.slf4j" % "slf4j-log4j12",
+      "log4j" % "log4j"
     )
   )
   .dependsOn(model)
@@ -59,10 +63,15 @@ lazy val flinkConsumer = project
       awsS3,
       logback,
       scalaKafkaClient,
+      scalaLogging,
       scallop,
       akkaTestKit % Test,
       scalaMock % Test,
       scalaTest % Test
+    ),
+    excludeDependencies ++= Seq(
+      "org.slf4j" % "slf4j-log4j12",
+      "log4j" % "log4j"
     )
   )
   .dependsOn(model)
