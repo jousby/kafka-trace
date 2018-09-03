@@ -48,7 +48,7 @@ class TrafficSimulator[T](producerProps: Properties, topic: String, messageGener
         msgCounter = 0
 
         if (secondDelta > 0) {
-          logger.debug(s"Estimated tps is $messagesPerSecond, rate limiting to the target tps of $targetTps")
+          logger.debug(s"Rate limited to the target tps of $targetTps")
           val targetSecond = now.getEpochSecond + 1
 
           // Sleep until the next second

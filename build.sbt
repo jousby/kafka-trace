@@ -55,7 +55,7 @@ lazy val flinkConsumer = project
   .in(file("./flink-consumer"))
   .settings(
     name := "flink-consumer",
-    mainClass := Some("com.amazonaws.FlinkConsumer"),
+    mainClass := Some("com.amazonaws.StartFlinkConsumer"),
     libraryDependencies ++= Seq(
       akkaActor,
       akkaSlf4j,
