@@ -83,11 +83,15 @@ object StartFlinkConsumer extends LazyLogging {
     consumerProps.put("group.id", "txns-consumer-group")
     consumerProps.put("specific.avro.reader", "true")
 
-    val consumer = new FlinkConsumer[Transaction](consumerProps, "txns")
+    val flinkConsumer = new FlinkConsumer[Transaction](consumerProps, "txns")
 
     logger.info("About to start consuming messages from Kafka - Press CTRL-C to terminate.")
-    Runtime.getRuntime.addShutdownHook(new Thread(() => consumer.stop()))
+    Runtime.getRuntime.addShutdownHook(new Thread() {
+      override def run(): Unit = {
+        flinkConsumer.stop()
+      }
+    })
 
-    consumer.start()
+    flinkConsumer.start()
   }
 }

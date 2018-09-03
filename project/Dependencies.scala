@@ -6,6 +6,7 @@ object Dependencies {
   lazy val akkaVersion = "2.5.11"
   lazy val avroSerializerVersion = "4.0.0"
   lazy val awsVersion = "1.11.292"
+  lazy val flinkVersion = "1.6.0"
   lazy val logbackVersion = "1.2.3"
   lazy val scallopVersion = "3.1.1"
   lazy val scalaKafkaClientVersion = "1.1.1"
@@ -13,15 +14,10 @@ object Dependencies {
   lazy val scalaLoggingVersion = "3.9.0"
   lazy val scalaTestVersion = "3.0.5"
 
-
-  // Scala CLI Args
-  lazy val scallop = "org.rogach" %% "scallop" % scallopVersion
-
-  // Scala Logging
-  lazy val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion
-
-  // Scala Kafka Client
-  lazy val scalaKafkaClient = "net.cakesolutions" %% "scala-kafka-client" % scalaKafkaClientVersion
+  // Flink
+  lazy val flink = "org.apache.flink" %% "flink-scala" % flinkVersion
+  lazy val flinkStreaming = "org.apache.flink" %% "flink-streaming-scala" % flinkVersion
+  lazy val flinkKafkaConnector = "org.apache.flink" %% "flink-connector-kafka-0.11" % flinkVersion
 
   // Akka
   lazy val akkaActor = "com.typesafe.akka" %% "akka-actor" % akkaVersion
@@ -145,6 +141,15 @@ object Dependencies {
 
   // Logback
   lazy val logback = "ch.qos.logback" % "logback-classic" % logbackVersion
+
+  // Scala CLI Args
+  lazy val scallop = "org.rogach" %% "scallop" % scallopVersion
+
+  // Scala Logging
+  lazy val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion
+
+  // Scala Kafka Client
+  lazy val scalaKafkaClient = "net.cakesolutions" %% "scala-kafka-client" % scalaKafkaClientVersion
 
   // Scala Mock
   lazy val scalaMock = "org.scalamock" %% "scalamock" % scalaMockVersion

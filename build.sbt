@@ -11,7 +11,7 @@ lazy val root = project
   .settings(
     inThisBuild(List(
       organization := "com.amazonaws",
-      scalaVersion := "2.12.4",
+      scalaVersion := "2.11.12",
       version      := "0.1.0-SNAPSHOT",
       resolvers    := Seq(cakeRepo, confluentRepo),
       scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature"),

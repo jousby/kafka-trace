@@ -120,8 +120,11 @@ object StartTrafficSimulator {
     val txnSimulator = new TrafficSimulator[Transaction](producerProps, "txns", TransactionGenerator, cl.targetTps.toOption.get)
 
     println("About to start publishing messages to Kafka - Press CTRL-C to terminate.")
-    Runtime.getRuntime.addShutdownHook(new Thread(() => txnSimulator.stop()))
-
+    Runtime.getRuntime.addShutdownHook(new Thread() {
+      override def run(): Unit = {
+        txnSimulator.stop()
+      }
+    })
     txnSimulator.start()
   }
 }
