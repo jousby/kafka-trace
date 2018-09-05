@@ -4,9 +4,10 @@ object Dependencies {
 
   // Dependency versions
   lazy val akkaVersion = "2.5.11"
-  lazy val avroSerializerVersion = "4.0.0"
+  lazy val avro4sVersion = "1.9.0"
   lazy val awsVersion = "1.11.292"
   lazy val flinkVersion = "1.6.0"
+  lazy val kafkaAvroSerializerVersion = "4.0.0"
   lazy val logbackVersion = "1.2.3"
   lazy val scallopVersion = "3.1.1"
   lazy val scalaKafkaClientVersion = "1.1.1"
@@ -14,18 +15,20 @@ object Dependencies {
   lazy val scalaLoggingVersion = "3.9.0"
   lazy val scalaTestVersion = "3.0.5"
 
+
+  // Avro4s
+  lazy val avro4s = "com.sksamuel.avro4s" %% "avro4s-core" % avro4sVersion
+
   // Flink
   lazy val flink = "org.apache.flink" %% "flink-scala" % flinkVersion
   lazy val flinkStreaming = "org.apache.flink" %% "flink-streaming-scala" % flinkVersion
   lazy val flinkKafkaConnector = "org.apache.flink" %% "flink-connector-kafka-0.11" % flinkVersion
+  lazy val flinkAvroConfluentRegistry = "org.apache.flink" % "flink-avro-confluent-registry" % flinkVersion
 
   // Akka
   lazy val akkaActor = "com.typesafe.akka" %% "akka-actor" % akkaVersion
   lazy val akkaSlf4j = "com.typesafe.akka" %% "akka-slf4j" % akkaVersion
   lazy val akkaTestKit = "com.typesafe.akka" %% "akka-testkit" % akkaVersion
-
-  // Avro Serializer
-  lazy val avroSerializer = "io.confluent" % "kafka-avro-serializer" % avroSerializerVersion
 
   // AWS All Inclusive
   lazy val awsJavaSdk = "com.amazonaws" % "aws-java-sdk" % awsVersion
@@ -141,6 +144,9 @@ object Dependencies {
 
   // Logback
   lazy val logback = "ch.qos.logback" % "logback-classic" % logbackVersion
+
+  // Kafka Avro Serializer
+  lazy val kafkaAvroSerializer = "io.confluent" % "kafka-avro-serializer" % kafkaAvroSerializerVersion
 
   // Scala CLI Args
   lazy val scallop = "org.rogach" %% "scallop" % scallopVersion

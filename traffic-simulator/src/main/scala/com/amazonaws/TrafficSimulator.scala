@@ -1,8 +1,8 @@
 package com.amazonaws
 
 import java.time.Instant
-import java.time.temporal.{ChronoField, ChronoUnit}
-import java.util.{Properties, UUID}
+import java.time.temporal.ChronoUnit
+import java.util.Properties
 
 import com.amazonaws.model.Transaction
 import com.typesafe.scalalogging.LazyLogging
@@ -23,7 +23,7 @@ class TrafficSimulator[T](producerProps: Properties, topic: String, messageGener
   val MILLIS_IN_SECOND = 1000
   val UNLIMITED = 0
 
-  def start() = if (targetTps == UNLIMITED) unlimitedTraffic() else rateLimitedTraffic(targetTps)
+  def start() = startTraffic(targetTps > UNLIMITED)
 
   def stop() = {
     logger.info(s"Stopping Traffic Simulator for topic: $topic")
@@ -31,65 +31,29 @@ class TrafficSimulator[T](producerProps: Properties, topic: String, messageGener
     producer.close()
   }
 
-  def rateLimitedTraffic(targetTps: Int): Unit = {
-    logger.info(s"TrafficSimulator target rate set to $targetTps per second")
+  def startTraffic(rateLimited: Boolean): Unit = {
     var msgCounter = 0
-    var lastReportingTime = Instant.now()
+    var targetSecond = Instant.now.getEpochSecond + 1
+    var msgWatermark = msgCounter
 
     while (!stopping) {
       producer.send(new ProducerRecord(topic, messageGenerator.create()))
       msgCounter += 1
-      if (msgCounter == targetTps) {
-        val now = Instant.now()
-        val elapsedMillis = ChronoUnit.MILLIS.between(lastReportingTime, now)
-        val secondDelta = MILLIS_IN_SECOND - elapsedMillis
-        val messagesPerSecond: Long = (msgCounter * (MILLIS_IN_SECOND.toDouble / elapsedMillis.toDouble)).toLong
-        lastReportingTime = now
-        msgCounter = 0
 
-        if (secondDelta > 0) {
-          logger.debug(s"Rate limited to the target tps of $targetTps")
-          val targetSecond = now.getEpochSecond + 1
+      // check if we are limiting the rate of emission and sleep if we have hit our target
+      if (rateLimited && ((msgCounter - msgWatermark) == targetTps))
+        while (Instant.now.getEpochSecond < targetSecond) Thread.sleep(1)
 
-          // Sleep until the next second
-          while (Instant.now.getEpochSecond < targetSecond) Thread.sleep(1)
-          lastReportingTime = Instant.now()
-        }
-        else {
-          logger.warn(s"Current tps is $messagesPerSecond, unable to achieve the target tps of $targetTps")
-        }
+      // if the second has ticked over report and update counters
+      if (Instant.now.getEpochSecond >= targetSecond) {
+        val msgsThisSecond = msgCounter - msgWatermark
+        if (msgsThisSecond < targetTps)
+          logger.warn(s"$msgsThisSecond tps (short of $targetTps)")
+        else
+          logger.info(s"$msgsThisSecond tps")
+        msgWatermark = msgCounter
+        targetSecond = Instant.now.getEpochSecond + 1
       }
-    }
-    logger.info(s"$msgCounter messages sent")
-  }
-
-  def unlimitedTraffic(): Unit = {
-    var msgCounter = 0
-
-    // attempts to report metrics once per second
-    val metricsObvserver = new Thread() {
-      override def run(): Unit = {
-        logger.info(s"TrafficSimulator target rate set to unlimited")
-        var msgWatermark = msgCounter
-        var targetSecond = Instant.now.getEpochSecond + 1
-        while (!stopping) {
-          // sleep until the next reporting second
-          while (Instant.now.getEpochSecond < targetSecond) Thread.sleep(1)
-
-          // second has ticked over lets report
-          val msgCounterSnap = msgCounter
-          logger.info(s"Current tps ${msgCounterSnap - msgWatermark}")
-          msgWatermark = msgCounterSnap
-          targetSecond = targetSecond + 1
-        }
-      }
-    }
-
-    metricsObvserver.start()
-
-    while (!stopping) {
-      producer.send(new ProducerRecord(topic, messageGenerator.create()))
-      msgCounter += 1
     }
 
     logger.info(s"$msgCounter messages sent")
@@ -106,25 +70,38 @@ object StartTrafficSimulator {
     verify()
   }
 
+  implicit def map2Properties(map: Map[String, String]): java.util.Properties = {
+    (new java.util.Properties /: map) { case (props, (k, v)) => props.put(k, v); props }
+  }
+
   def main(args: Array[String]): Unit = {
 
-    val cl = new Args(args)
+    // process command line args
+    val commandLine = new Args(args)
 
-    val producerProps: Properties = new Properties()
+    // kafka producer config
+    val kafkaProducerProperties = Map(
+      ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG -> classOf[StringSerializer].getCanonicalName,
+      ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG -> classOf[KafkaAvroSerializer].getCanonicalName,
+      ProducerConfig.BOOTSTRAP_SERVERS_CONFIG -> commandLine.kafkaUrl.toOption.get,
+      "schema.registry.url" -> commandLine.registryUrl.toOption.get
+    )
 
-    producerProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, classOf[StringSerializer].getCanonicalName)
-    producerProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, classOf[KafkaAvroSerializer].getCanonicalName)
-    producerProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, cl.kafkaUrl.toOption.get)
-    producerProps.put("schema.registry.url", cl.registryUrl.toOption.get)
-
-    val txnSimulator = new TrafficSimulator[Transaction](producerProps, "txns", TransactionGenerator, cl.targetTps.toOption.get)
+    // create the traffic simulator, this uses the passed in TransactionGenerate to create dummy messages
+    val txnTrafficSimulator = new TrafficSimulator[Transaction](
+      kafkaProducerProperties,
+      "txns",
+      TransactionGenerator,
+      commandLine.targetTps.toOption.get
+    )
 
     println("About to start publishing messages to Kafka - Press CTRL-C to terminate.")
     Runtime.getRuntime.addShutdownHook(new Thread() {
       override def run(): Unit = {
-        txnSimulator.stop()
+        txnTrafficSimulator.stop()
       }
     })
-    txnSimulator.start()
+
+    txnTrafficSimulator.start()
   }
 }

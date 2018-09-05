@@ -14,9 +14,9 @@ lazy val root = project
       scalaVersion := "2.11.12",
       version      := "0.1.0-SNAPSHOT",
       resolvers    := Seq(cakeRepo, confluentRepo),
-      scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature"),
+      scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature")
     )),
-    name := "kafka-trace",
+    name := "kafka-trace"
   )
 
 lazy val model = project
@@ -25,7 +25,7 @@ lazy val model = project
     name := "model",
     sourceGenerators in Compile += (avroScalaGenerateSpecific in Compile).taskValue,
     libraryDependencies ++= Seq(
-      avroSerializer
+      kafkaAvroSerializer
     )
   )
 
@@ -35,7 +35,7 @@ lazy val trafficSimulator = project
     name := "traffic-simulator",
     mainClass := Some("com.amazonaws.StartTrafficSimulator"),
     libraryDependencies ++= Seq(
-      avroSerializer,
+      kafkaAvroSerializer,
       logback,
       scalaKafkaClient,
       scalaLogging,
@@ -57,12 +57,12 @@ lazy val flinkConsumer = project
     name := "flink-consumer",
     mainClass := Some("com.amazonaws.StartFlinkConsumer"),
     libraryDependencies ++= Seq(
-      akkaActor,
-      akkaSlf4j,
-      avroSerializer,
-      awsS3,
+      avro4s,
+      flink,
+      flinkStreaming,
+      flinkKafkaConnector,
+      flinkAvroConfluentRegistry,
       logback,
-      scalaKafkaClient,
       scalaLogging,
       scallop,
       akkaTestKit % Test,

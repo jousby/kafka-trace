@@ -1,63 +1,19 @@
 package com.amazonaws
 
-import java.time.Instant
-import java.util.Properties
+import java.util.concurrent.TimeUnit
 
 import com.amazonaws.model.Transaction
+import com.sksamuel.avro4s.{FromRecord, RecordFormat, ToRecord}
 import com.typesafe.scalalogging.LazyLogging
-import io.confluent.kafka.serializers.KafkaAvroDeserializer
-import org.apache.kafka.clients.consumer.{ConsumerConfig, KafkaConsumer}
-import org.apache.kafka.common.serialization.StringDeserializer
+import org.apache.flink.streaming.api.windowing.time._
+import org.apache.flink.formats.avro.registry.confluent.ConfluentRegistryAvroDeserializationSchema
+import org.apache.flink.streaming.api.scala._
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011
+import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.rogach.scallop.{ScallopConf, ScallopOption}
+import org.apache.avro.generic.GenericRecord
 
-import scala.collection.JavaConverters._
-
-
-class FlinkConsumer[T](consumerProps: Properties, topic: String) extends LazyLogging {
-  var stopping = false
-  val consumer = new KafkaConsumer[String, T](consumerProps)
-  var msgCounter = 0
-
-  def start(): Unit = {
-    // subscribe to producer's topic
-    consumer.subscribe(java.util.Arrays.asList(topic))
-
-    // attempts to report metrics once per second
-    val metricsObvserver = new Thread() {
-      override def run(): Unit = {
-        var msgWatermark = msgCounter
-        var targetSecond = Instant.now.getEpochSecond + 1
-        while (!stopping) {
-          // sleep until the next reporting second
-          while (Instant.now.getEpochSecond < targetSecond) Thread.sleep(1)
-
-          // second has ticked over lets report
-          val msgCounterSnap = msgCounter
-          logger.info(s"Current read tps ${msgCounterSnap - msgWatermark}")
-          msgWatermark = msgCounterSnap
-          targetSecond = targetSecond + 1
-        }
-      }
-    }
-
-    metricsObvserver.start()
-
-    //poll for new messages every two seconds
-    while(!stopping) {
-      val records = consumer.poll(500)
-      msgCounter += records.count()
-
-      //commit offsets on last poll
-      consumer.commitSync()
-    }
-  }
-
-  def stop() = {
-    logger.info(s"Stopping Flink Consumer for topic: $topic")
-    stopping = true
-    consumer.close()
-  }
-}
+import scala.language.implicitConversions
 
 object StartFlinkConsumer extends LazyLogging {
 
@@ -68,30 +24,49 @@ object StartFlinkConsumer extends LazyLogging {
     verify()
   }
 
+  implicit def map2Properties(map: Map[String, String]): java.util.Properties = {
+    (new java.util.Properties /: map) { case (props, (k, v)) => props.put(k, v); props }
+  }
+
   def main(args: Array[String]): Unit = {
 
-    val cl = new Args(args)
+    val commandLine = new Args(args)
 
-    val consumerProps: Properties = new Properties()
+    val kafkaConsumerProperties = Map(
+       ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG -> commandLine.kafkaUrl.toOption.get
+    )
 
-    consumerProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, classOf[StringDeserializer].getCanonicalName)
-    consumerProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, classOf[KafkaAvroDeserializer].getCanonicalName)
-    consumerProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, cl.kafkaUrl.toOption.get)
-    consumerProps.put("schema.registry.url", cl.registryUrl.toOption.get)
+    val txnDeserializer = ConfluentRegistryAvroDeserializationSchema.forGeneric(
+      Transaction.SCHEMA$,
+      commandLine.registryUrl.toOption.get
+    )
 
-    //set group id and set specific avro reader to true
-    consumerProps.put("group.id", "txns-consumer-group")
-    consumerProps.put("specific.avro.reader", "true")
-
-    val flinkConsumer = new FlinkConsumer[Transaction](consumerProps, "txns")
+    val kafkaConsumer: FlinkKafkaConsumer011[GenericRecord] = new FlinkKafkaConsumer011(
+      "txns", txnDeserializer, kafkaConsumerProperties
+    )
 
     logger.info("About to start consuming messages from Kafka - Press CTRL-C to terminate.")
     Runtime.getRuntime.addShutdownHook(new Thread() {
       override def run(): Unit = {
-        flinkConsumer.stop()
+        kafkaConsumer.close()
       }
     })
 
-    flinkConsumer.start()
+    val env = StreamExecutionEnvironment.getExecutionEnvironment
+    val genericStream: DataStream[GenericRecord] = env.addSource(kafkaConsumer)
+
+    // transform our DataStream[GenericRecord] into our target type DataStream[Transaction]
+    val stream: DataStream[Transaction] = genericStream.map(RecordFormat[Transaction].from(_))
+
+    // print how many objects are being processed in a 1 second window
+    stream
+      .map(v => 1)
+      .timeWindowAll(Time.of(1, TimeUnit.SECONDS))
+      .sum(0)
+      .map(count => s"$count tps")
+      .print()
+
+    // start the program
+    env.execute()
   }
 }
