@@ -7,7 +7,7 @@ object Dependencies {
   lazy val avro4sVersion = "1.9.0"
   lazy val awsVersion = "1.11.292"
   lazy val flinkVersion = "1.6.0"
-  lazy val kafkaAvroSerializerVersion = "4.0.0"
+  lazy val kafkaAvroSerializerVersion = "3.3.2"
   lazy val logbackVersion = "1.2.3"
   lazy val scallopVersion = "3.1.1"
   lazy val scalaKafkaClientVersion = "1.1.1"

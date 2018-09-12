@@ -1,5 +1,7 @@
 package com.amazonaws
 
+import java.time.Instant
+import java.time.temporal.ChronoField
 import java.util.concurrent.TimeUnit
 
 import com.amazonaws.model.Transaction
@@ -58,12 +60,23 @@ object StartFlinkConsumer extends LazyLogging {
     // transform our DataStream[GenericRecord] into our target type DataStream[Transaction]
     val stream: DataStream[Transaction] = genericStream.map(RecordFormat[Transaction].from(_))
 
+    // calculate the number of micros since the txn was created.
+    def calculateLatency(eventTimestamp: Long): Long = {
+      val nowTimestamp = {
+        val now = Instant.now()
+        val epochSecondsToMicros = now.getEpochSecond * 1000000 // number of micros in a second
+        val remainingMicros = now.get(ChronoField.MICRO_OF_SECOND)
+        epochSecondsToMicros + remainingMicros
+      }
+      nowTimestamp - eventTimestamp
+    }
+
     // print how many objects are being processed in a 1 second window
     stream
-      .map(v => 1)
+      .map(txn => (1, calculateLatency(txn.timestamp)))
       .timeWindowAll(Time.of(1, TimeUnit.SECONDS))
-      .sum(0)
-      .map(count => s"$count tps")
+      .reduce((accumulator, v) => (accumulator._1 + v._1, accumulator._2 + v._2))
+      .map(accumulator => s"tps: ${accumulator._1}, avg latency: ${accumulator._2 / accumulator._1}")
       .print()
 
     // start the program

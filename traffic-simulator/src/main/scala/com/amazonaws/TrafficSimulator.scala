@@ -11,6 +11,8 @@ import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, Produce
 import org.apache.kafka.common.serialization.StringSerializer
 import org.rogach.scallop.{ScallopConf, ScallopOption}
 
+import scala.language.implicitConversions
+
 
 trait MessageGenerator[T] {
   def create(): T

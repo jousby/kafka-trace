@@ -58,8 +58,8 @@ lazy val flinkConsumer = project
     mainClass := Some("com.amazonaws.StartFlinkConsumer"),
     libraryDependencies ++= Seq(
       avro4s,
-      flink,
-      flinkStreaming,
+      flink % Provided,
+      flinkStreaming % Provided,
       flinkKafkaConnector,
       flinkAvroConfluentRegistry,
       logback,
