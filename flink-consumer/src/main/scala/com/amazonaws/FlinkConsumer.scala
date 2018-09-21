@@ -74,7 +74,7 @@ object StartFlinkConsumer extends LazyLogging {
     // print how many objects are being processed in a 1 second window
     stream
       .map(txn => (1, calculateLatency(txn.timestamp)))
-      .timeWindowAll(Time.of(1, TimeUnit.SECONDS))
+      .timeWindowAll(Time.seconds(1))
       .reduce((accumulator, v) => (accumulator._1 + v._1, accumulator._2 + v._2))
       .map(accumulator => s"tps: ${accumulator._1}, avg latency: ${accumulator._2 / accumulator._1}")
       .print()
