@@ -1,0 +1,16 @@
+[Unit]
+Description=Confluent Schema Registry
+Documentation=https://www.confluent.io/confluent-schema-registry
+Requires=network.target remote-fs.target
+After=network.target remote-fs.target
+
+[Service]
+Type=forking
+User=ec2-user
+Group=ec2-user
+Environment="KAFKA_OPTS=-Xms1g -Xmx1g -XX:MetaspaceSize=96m -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:G1HeapRegionSize=16M -XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80"
+ExecStart=/opt/confluent/bin/schema-registry-start -daemon /opt/confluent/etc/schema-registry/schema-registry.properties
+ExecStop=/opt/confluent/bin/schema-registry-stop
+
+[Install]
+WantedBy=multi-user.target

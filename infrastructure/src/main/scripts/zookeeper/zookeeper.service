@@ -1,0 +1,16 @@
+[Unit]
+Description=Apache Zookeeper Server
+Documentation=http://zookeeper.apache.org
+Requires=network.target remote-fs.target
+After=network.target remote-fs.target
+
+[Service]
+Type=forking
+User=ec2-user
+Group=ec2-user
+Environment="KAFKA_OPTS=-Xms1g -Xmx1g"
+ExecStart=/opt/confluent/bin/zookeeper-server-start -daemon /opt/confluent/etc/kafka/zookeeper.properties
+ExecStop=/opt/confluent/bin/zookeeper-server-stop
+
+[Install]
+WantedBy=multi-user.target
