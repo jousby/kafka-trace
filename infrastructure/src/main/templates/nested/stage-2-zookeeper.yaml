@@ -1,0 +1,27 @@
+Description: >
+  This template stands up the zookeeper cluster in way that tolerates and auto heals from a single AZ outage.
+
+Parameters:
+
+  EnvironmentName:
+    Description: An environment name that will be prefixed to resource names
+    Type: String
+
+  VpcId:
+    Description: The id of the vpc we are building into
+    Type: String
+
+  StackName:
+    Description: Stack name of the parent stack
+    Type: String
+
+
+Resources:
+
+  # 1 ALB (autoheal alb)
+  # 3 ASG
+  # 3 ec2
+  # 3 eni
+  # Attach eni's to ec2's
+  # 1 Lambda (that reattaches eni to healthy instance)
+  # Fire lambda on ASG scale event
