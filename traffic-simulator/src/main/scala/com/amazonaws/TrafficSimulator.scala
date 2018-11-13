@@ -78,7 +78,6 @@ object StartTrafficSimulator {
 
   def main(args: Array[String]): Unit = {
 
-    println(java.net.InetAddress.)
     // process command line args
     val commandLine = new Args(args)
 

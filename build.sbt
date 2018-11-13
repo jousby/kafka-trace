@@ -19,6 +19,18 @@ lazy val root = project
     name := "kafka-trace"
   )
 
+lazy val infrastructure = project
+  .in(file("./infrastructure"))
+  .settings(
+    name := "infrastructure",
+    libraryDependencies ++= Seq(
+      awsEc2,
+      awsLambdaJavaCore,
+      awsLambdaJavaEvents
+    )
+  )
+
+
 lazy val model = project
   .in(file("./model"))
   .settings(
