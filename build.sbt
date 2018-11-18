@@ -25,6 +25,7 @@ lazy val infrastructure = project
     name := "infrastructure",
     libraryDependencies ++= Seq(
       awsEc2,
+      awsAutoscaling,
       awsLambdaJavaCore,
       awsLambdaJavaEvents
     )
