@@ -1,0 +1,157 @@
+Description: >
+  This template constructs the necessary security groups for our services. This is seperated out
+  both to make fixing inter service connectivity easier to debug in one place and to work with
+  operating models where teams can't create their own security groups.
+
+Parameters:
+  VpcId:
+    Description: The target vpc in which to define the security groups
+    Type: AWS::EC2::VPC::Id
+
+
+Resources:
+  ZookeeperSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub ${AWS::StackName}-zookeeper
+      SecurityGroupIngress:
+      - CidrIp: "0.0.0.0/0"
+        IpProtocol: "TCP"
+      VpcId: !Ref 'VpcId'
+      Tags:
+      - Key: Name
+        Value: !Join [ ':', [ !Ref 'AWS::StackName', 'ZookeeperSG' ] ]
+
+  KafkaSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub ${AWS::StackName}-kafka
+      SecurityGroupIngress:
+      - CidrIp: "0.0.0.0/0"
+        IpProtocol: "TCP"
+      VpcId: !Ref 'VpcId'
+      Tags:
+      - Key: Name
+        Value: !Join [ ':', [ !Ref 'AWS::StackName', 'KafkaSG' ] ]
+
+  FlinkSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub ${AWS::StackName}-flink
+      SecurityGroupIngress:
+      - CidrIp: "0.0.0.0/0"
+        IpProtocol: "TCP"
+      VpcId: !Ref 'VpcId'
+      Tags:
+      - Key: Name
+        Value: !Join [ ':', [ !Ref 'AWS::StackName', 'FlinkSG' ] ]
+
+  SchemaRegistrySG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub ${AWS::StackName}-schemaregistry
+      SecurityGroupIngress:
+      - CidrIp: "0.0.0.0/0"
+        IpProtocol: "TCP"
+      VpcId: !Ref 'VpcId'
+      Tags:
+      - Key: Name
+        Value: !Join [ ':', [ !Ref 'AWS::StackName', 'SchemaRegistrySG' ] ]
+
+  TrafficSimulatorSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub ${AWS::StackName}-trafficsim
+      SecurityGroupIngress:
+      - CidrIp: "0.0.0.0/0"
+        IpProtocol: "TCP"
+      VpcId: !Ref 'VpcId'
+      Tags:
+      - Key: Name
+        Value: !Join [ ':', [ !Ref 'AWS::StackName', 'TrafficSimulatorSG' ] ]
+
+  BastionSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub ${AWS::StackName}-bastion
+      SecurityGroupIngress:
+      - CidrIp: "0.0.0.0/0"
+        IpProtocol: "TCP"
+      VpcId: !Ref 'VpcId'
+      Tags:
+      - Key: Name
+        Value: !Join [ ':', [ !Ref 'AWS::StackName', 'BastionSG' ] ]
+
+  OperationsSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub ${AWS::StackName}-operations
+      SecurityGroupIngress:
+      - CidrIp: "0.0.0.0/0"
+        IpProtocol: "TCP"
+      VpcId: !Ref 'VpcId'
+      Tags:
+      - Key: Name
+        Value: !Join [ ':', [ !Ref 'AWS::StackName', 'OperationsSG' ] ]
+
+  FrontdoorSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub ${AWS::StackName}-frontdoor
+      SecurityGroupIngress:
+      - CidrIp: "0.0.0.0/0"
+        IpProtocol: "TCP"
+      VpcId: !Ref 'VpcId'
+      Tags:
+      - Key: Name
+        Value: !Join [ ':', [ !Ref 'AWS::StackName', 'FrontdoorSG' ] ]
+
+Outputs:
+  ZookeeperSG:
+    Description: Security Group for Zookeeper cluster nodes
+    Value: !Ref ZookeeperSG
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'ZookeeperSG' ] ]
+
+  KafkaSG:
+    Description: Security Group for Kafka cluster nodes
+    Value: !Ref KafkaSG
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'KafkaSG' ] ]
+
+  FlinkSG:
+    Description: Security Group for flink cluster nodes
+    Value: !Ref FlinkSG
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'FlinkSG' ] ]
+
+  SchemaRegistrySG:
+    Description: Security Group for confluent schema registry service
+    Value: !Ref SchemaRegistrySG
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'SchemaRegistrySG' ] ]
+
+  TrafficSimulatorSG:
+    Description: Security Group for the traffic simulator service
+    Value: !Ref TrafficSimulatorSG
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'TrafficSimulatorSG' ] ]
+
+  BastionSG:
+    Description: Security Group for the bastion service
+    Value: !Ref BastionSG
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'BastionSG' ] ]
+
+  OperationsSG:
+    Description: Security Group for the management consoles
+    Value: !Ref OperationsSG
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'OperationsSG' ] ]
+
+  FrontdoorSG:
+    Description: Security Group for the public alb that serves traffic for the management consoles
+    Value: !Ref FrontdoorSG
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'FrontdoorSG' ] ]
+

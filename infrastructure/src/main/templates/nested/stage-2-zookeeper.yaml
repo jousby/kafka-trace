@@ -19,9 +19,55 @@ Parameters:
 Resources:
 
   # 1 ALB (autoheal alb)
+  AutohealALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Scheme: internet-facing
+      Subnets:
+        - Ref: PublicSubnet1
+        - Ref: PublicSubnet2
+        - Ref: PublicSubnet3
+      LoadBalancerAttributes:
+        - Key: idle_timeout.timeout_seconds
+          Value: '50'
+      SecurityGroups:
+        - Ref: FrontdoorSG
+
   # 3 ASG
+  ZookeeperAASG:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AvailabilityZones:
+        Fn::GetAZs: ''
+      LaunchConfigurationName:
+        Ref: 'LaunchConfig'
+      MinSize: '1'
+      MaxSize: '1'
+      LoadBalancerNames:
+        - Ref: AutohealALB
+      MetricsCollection:
+        -
+          Granularity: '1Minute'
+          Metrics:
+            - 'GroupMinSize'
+            - 'GroupMaxSize'
+
   # 3 ec2
+
   # 3 eni
+  EniZookeeperA:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      Description:
+      GroupSet:
+        - Ref: ZookeeperSG
+      SecondaryPrivateIpAddressCount: 0
+      SourceDestCheck: false
+      SubnetId: String
+      Tags:
+        - Key: role
+          Value: ZookeeperA
+
   # Attach eni's to ec2's
   # 1 Lambda (that reattaches eni to healthy instance)
   # Fire lambda on ASG scale event

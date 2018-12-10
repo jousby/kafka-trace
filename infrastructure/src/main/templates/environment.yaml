@@ -1,0 +1,25 @@
+Description: >
+  Parent script for standing up a new kafka tracing environment
+
+Parameters:
+  BranchName:
+    Description: Which git branch are we pulling the nested templates from.
+    Type: String
+
+  NetworkStackName:
+    Description: Name of the stack in which the vpc and subnets were created.
+    Type: String
+
+  SecurityStackName:
+    Description: Name of the stack in which the security groups were created.
+    Type: String
+
+
+Resources:
+  AutohealALB:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${BranchName}/stage-1-autoheal-alb.yaml
+      Parameters:
+        ALBName: !Ref ALBName
+        StackName: !Ref AWS::StackName

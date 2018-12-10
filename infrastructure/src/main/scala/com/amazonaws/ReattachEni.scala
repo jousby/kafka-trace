@@ -79,16 +79,15 @@ class ReattachEni extends RequestHandler[java.util.HashMap[String, Object], Unit
       toASGEvent(eventMap) match {
         case Right(asgEvent) => {
           logger.log(s"About to try reattaching eni to new instance: ${asgEvent.detail.ec2InstanceId}")
-          handleRequest(asgEvent, context)
-            match {
-              case Success(attachmentId) => {
-                logger.log(s"Successfully attached eni to instance: ${asgEvent.detail.ec2InstanceId}")
-                completeLifecycleAction(asgEvent, true)
-              }
-              case Failure(exception) => {
-                logger.log(s"Exception when trying to reattach eni: ${exception.getMessage}")
-                completeLifecycleAction(asgEvent, false)
-              }
+          handleRequest(asgEvent, context) match {
+            case Success(attachmentId) => {
+              logger.log(s"Successfully attached eni to instance: ${asgEvent.detail.ec2InstanceId}")
+              completeLifecycleAction(asgEvent, true)
+            }
+            case Failure(exception) => {
+              logger.log(s"Exception when trying to reattach eni: ${exception.getMessage}")
+              completeLifecycleAction(asgEvent, false)
+            }
           }
         }
         case Left(error) => {
