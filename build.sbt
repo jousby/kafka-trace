@@ -7,7 +7,7 @@ import Dependencies._
 // Project definition
 lazy val root = project
   .in(file("."))
-  .aggregate(model, trafficSimulator, flinkConsumer)
+  .aggregate(model, trafficSimulator, flinkConsumer) //, infrastructure)
   .settings(
     inThisBuild(List(
       organization := "com.amazonaws",
@@ -30,7 +30,6 @@ lazy val infrastructure = project
       awsLambdaJavaEvents
     )
   )
-
 
 lazy val model = project
   .in(file("./model"))

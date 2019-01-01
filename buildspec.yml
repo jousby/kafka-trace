@@ -5,7 +5,6 @@ phases:
   build:
     commands:
     - echo "Build started on `date`"
-    - cd ./kafka-trace
     - echo "Running sbt package"
     - bash -c "source /opt/sdkman/bin/sdkman-init.sh && sbt package"
 
