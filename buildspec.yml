@@ -15,7 +15,7 @@ phases:
 artifacts:
   files:
     - infrastructure/target/scala-2.12/infrastructure_2.12-0.1.0-SNAPSHOT.jar
-    - flink-consumer/target/scala-2.12/fink-consumer_2.12-0.1.0-SNAPSHOT.jar
+    - flink-consumer/target/scala-2.12/flink-consumer_2.12-0.1.0-SNAPSHOT.jar
     - traffic-simulator/target/scala-2.12/traffic-simulator_2.12-0.1.0-SNAPSHOT.jar
 
 cache:
