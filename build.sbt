@@ -7,11 +7,11 @@ import Dependencies._
 // Project definition
 lazy val root = project
   .in(file("."))
-  .aggregate(model, trafficSimulator, flinkConsumer) //, infrastructure)
+  .aggregate(model, trafficSimulator, flinkConsumer, infrastructure)
   .settings(
     inThisBuild(List(
       organization := "com.amazonaws",
-      scalaVersion := "2.11.12",
+      scalaVersion := "2.12.8",
       version      := "0.1.0-SNAPSHOT",
       resolvers    := Seq(cakeRepo, confluentRepo),
       scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature")

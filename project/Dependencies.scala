@@ -4,11 +4,11 @@ object Dependencies {
 
   // Dependency versions
   lazy val akkaVersion = "2.5.11"
-  lazy val avro4sVersion = "1.9.0"
+  lazy val avro4sVersion = "2.0.3"
   lazy val awsLambdaJava = "1.2.0"
   lazy val awsSdkJavaVersion = "1.11.292"
   lazy val awsSdkJavaV2Version = "2.0.6"
-  lazy val flinkVersion = "1.6.0"
+  lazy val flinkVersion = "1.7.1"
   lazy val kafkaAvroSerializerVersion = "3.3.2"
   lazy val logbackVersion = "1.2.3"
   lazy val scallopVersion = "3.1.1"
