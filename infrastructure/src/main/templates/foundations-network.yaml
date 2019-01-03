@@ -137,37 +137,28 @@ Resources:
 
 
   # standup nat gateways (one in each az / pub sub net)
-  NatGateway1EIP:
+  NatGatewayEIP1:
     Type: AWS::EC2::EIP
     DependsOn: InternetGatewayAttachment
     Properties:
       Domain: vpc
-      Tags:
-      - Key: Name
-        Value: !Join [ ':', [ !Ref 'AWS::StackName', 'NatGatewayEIP1' ] ]
 
-  NatGateway2EIP:
+  NatGatewayEIP2:
     Type: AWS::EC2::EIP
     DependsOn: InternetGatewayAttachment
     Properties:
       Domain: vpc
-      Tags:
-      - Key: Name
-        Value: !Join [ ':', [ !Ref 'AWS::StackName', 'NatGatewayEIP2' ] ]
 
-  NatGateway3EIP:
+  NatGatewayEIP3:
     Type: AWS::EC2::EIP
     DependsOn: InternetGatewayAttachment
     Properties:
       Domain: vpc
-      Tags:
-      - Key: Name
-        Value: !Join [ ':', [ !Ref 'AWS::StackName', 'NatGatewayEIP3' ] ]
 
   NatGateway1:
     Type: AWS::EC2::NatGateway
     Properties:
-      AllocationId: !GetAtt NatGateway1EIP.AllocationId
+      AllocationId: !GetAtt NatGatewayEIP1.AllocationId
       SubnetId: !Ref PublicSubnet1
       Tags:
       - Key: Name
@@ -177,7 +168,7 @@ Resources:
   NatGateway2:
     Type: AWS::EC2::NatGateway
     Properties:
-      AllocationId: !GetAtt NatGateway2EIP.AllocationId
+      AllocationId: !GetAtt NatGatewayEIP2.AllocationId
       SubnetId: !Ref PublicSubnet2
       Tags:
       - Key: Name
@@ -186,7 +177,7 @@ Resources:
   NatGateway3:
     Type: AWS::EC2::NatGateway
     Properties:
-      AllocationId: !GetAtt NatGateway3EIP.AllocationId
+      AllocationId: !GetAtt NatGatewayEIP3.AllocationId
       SubnetId: !Ref PublicSubnet3
       Tags:
       - Key: Name
