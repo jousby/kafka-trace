@@ -1,7 +1,7 @@
 Description: >
   This template deploys a VPC, with three public and private subnets spread
   across three Availabilty Zones. It deploys an Internet Gateway, with a default
-  route on the public subnets. It deploys a trio of NAT Gateways (one in each AZ),
+  route on the public subnets. It deploys a single NAT Gateway (one in each AZ),
   and default routes for them in the private subnets.
 
 Parameters:
@@ -136,20 +136,11 @@ Resources:
         Value: !Join [ ':', [ !Ref 'AWS::StackName', 'PrivateSubnet3' ] ]
 
 
-  # standup nat gateways (one in each az / pub sub net)
+  # standup one nat gateway
+  # The default soft limit for Elastic IP's per account is 5. If running this in production
+  # then look to get this limit increased and change the below to define 3 nat gateways, one
+  # in each AZ for high availiability.
   NatGatewayEIP1:
-    Type: AWS::EC2::EIP
-    DependsOn: InternetGatewayAttachment
-    Properties:
-      Domain: vpc
-
-  NatGatewayEIP2:
-    Type: AWS::EC2::EIP
-    DependsOn: InternetGatewayAttachment
-    Properties:
-      Domain: vpc
-
-  NatGatewayEIP3:
     Type: AWS::EC2::EIP
     DependsOn: InternetGatewayAttachment
     Properties:
@@ -163,25 +154,6 @@ Resources:
       Tags:
       - Key: Name
         Value: !Join [ ':', [ !Ref 'AWS::StackName', 'NatGateway1' ] ]
-
-
-  NatGateway2:
-    Type: AWS::EC2::NatGateway
-    Properties:
-      AllocationId: !GetAtt NatGatewayEIP2.AllocationId
-      SubnetId: !Ref PublicSubnet2
-      Tags:
-      - Key: Name
-        Value: !Join [ ':', [ !Ref 'AWS::StackName', 'NatGateway2' ] ]
-
-  NatGateway3:
-    Type: AWS::EC2::NatGateway
-    Properties:
-      AllocationId: !GetAtt NatGatewayEIP3.AllocationId
-      SubnetId: !Ref PublicSubnet3
-      Tags:
-      - Key: Name
-        Value: !Join [ ':', [ !Ref 'AWS::StackName', 'NatGateway3' ] ]
 
 
   # configure nacls
@@ -336,46 +308,16 @@ Resources:
       RouteTableId: !Ref PrivateRouteTable1
       SubnetId: !Ref PrivateSubnet1
 
-  PrivateRouteTable2:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      VpcId: !Ref VPC
-      Tags:
-      - Key: Name
-        Value: !Join [ ':', [ !Ref 'AWS::StackName', 'PrivateRouteTable2' ] ]
-
-  DefaultPrivateRoute2:
-    Type: AWS::EC2::Route
-    Properties:
-      RouteTableId: !Ref PrivateRouteTable2
-      DestinationCidrBlock: 0.0.0.0/0
-      NatGatewayId: !Ref NatGateway2
-
   PrivateSubnet2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      RouteTableId: !Ref PrivateRouteTable2
+      RouteTableId: !Ref PrivateRouteTable1
       SubnetId: !Ref PrivateSubnet2
-
-  PrivateRouteTable3:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      VpcId: !Ref VPC
-      Tags:
-      - Key: Name
-        Value: !Join [ ':', [ !Ref 'AWS::StackName', 'PrivateRouteTable3' ] ]
-
-  DefaultPrivateRoute3:
-    Type: AWS::EC2::Route
-    Properties:
-      RouteTableId: !Ref PrivateRouteTable3
-      DestinationCidrBlock: 0.0.0.0/0
-      NatGatewayId: !Ref NatGateway3
 
   PrivateSubnet3RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      RouteTableId: !Ref PrivateRouteTable3
+      RouteTableId: !Ref PrivateRouteTable1
       SubnetId: !Ref PrivateSubnet3
 
 
