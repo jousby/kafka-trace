@@ -18,7 +18,7 @@ Resources:
       SecurityGroupIngress:
         -
           IpProtocol: "TCP"
-          FromPort: "-1"
+          FromPort: "0"
           ToPort: "-1"
           CidrIp: "0.0.0.0/0"
       VpcId: !Ref 'VpcId'
