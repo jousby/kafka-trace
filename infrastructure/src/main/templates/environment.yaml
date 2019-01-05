@@ -18,6 +18,22 @@ Parameters:
     Description: Public subnet in AZ 3
     Type: String
 
+  PrivateSubnetId1:
+    Description: Private subnet in AZ 1
+    Type: String
+
+  PrivateSubnetId2:
+    Description: Private subnet in AZ 2
+    Type: String
+
+  PrivateSubnetId3:
+    Description: Private subnet in AZ 3
+    Type: String
+
+  AmazonLinux2Ami:
+    Description: The latest amazon linux ami id for your region
+    Type: String
+
 Resources:
   #############################################################################
   # 1. Create the required Security Groups
@@ -139,7 +155,7 @@ Resources:
   # 2. Create the zookeeper cluster
   #############################################################################
 
-  # 1 ALB (autoheal alb)
+  # ALB that is shared across all three Zookeeper Nodes
   AutohealALB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
@@ -153,21 +169,42 @@ Resources:
           Value: '50'
       SecurityGroups:
         - Ref: FrontdoorSG
+      Tags:
+        - Key: Name
+          Value: !Join [ ':', [ !Ref 'AWS::StackName', 'ALB' ] ]
 
-#  # 3 ASG
-#  Zookeeper1ASG:
-#    Type: AWS::AutoScaling::AutoScalingGroup
-#    Properties:
-#      AvailabilityZones:
-#        Fn::GetAZs: ''
-#      LaunchConfigurationName:
-#        Ref: 'LaunchConfig'
-#      MinSize: '1'
-#      MaxSize: '1'
-#      LoadBalancerNames:
-#        - Ref: AutohealALB
-#      MetricsCollection:
-#        - Granularity: '1Minute'
-#          Metrics:
-#            - 'GroupMinSize'
-#            - 'GroupMaxSize'
+  # Autohealing pattern for Zookeeper Node 1
+  ZookeeperLaunchConfig:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      ImageId: !Ref 'AmazonLinux2Ami'
+      SecurityGroups:
+        - Ref: ZookeeperSG
+      InstanceType: m4.large
+      BlockDeviceMappings:
+        - DeviceName: "/dev/sda1"
+          Ebs:
+            VolumeSize: '10'
+      Tags:
+        - Key: Name
+          Value: !Join [ ':', [ !Ref 'AWS::StackName', 'ZookeeperLaunchConfig' ] ]
+
+  Zookeeper1ASG:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AvailabilityZones:
+        Fn::GetAZs: ''
+      LaunchConfigurationName:
+        Ref: ZookeeperLaunchConfig
+      MinSize: '1'
+      MaxSize: '1'
+      LoadBalancerNames:
+        - Ref: AutohealALB
+      MetricsCollection:
+        - Granularity: '1Minute'
+          Metrics:
+            - 'GroupMinSize'
+            - 'GroupMaxSize'
+      Tags:
+        - Key: Name
+          Value: !Join [ ':', [ !Ref 'AWS::StackName', 'Zookeeper1ASG' ] ]

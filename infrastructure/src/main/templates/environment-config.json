@@ -3,6 +3,10 @@
     "VpcId": "vpc-0b59faaccf329a10f",
     "PublicSubnetId1": "subnet-0410831f8467d499e",
     "PublicSubnetId2": "subnet-00378b6a95174086a",
-    "PublicSubnetId3": "subnet-02c06980c5415ba6e"
+    "PublicSubnetId3": "subnet-02c06980c5415ba6e",
+    "PrivateSubnetId1": "subnet-0daa300396510ac0c",
+    "PrivateSubnetId2": "subnet-0daa300396510ac0c",
+    "PrivateSubnetId3": "subnet-086b1fa991a3a9cab",
+    "AmazonLinux2Ami": "ami-08589eca6dcc9b39c"
   }
 }
