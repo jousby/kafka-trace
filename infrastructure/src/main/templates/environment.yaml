@@ -34,8 +34,6 @@ Resources:
           FromPort: "0"
           ToPort: "65535"
           CidrIp: "0.0.0.0/0"
-        - CidrIp: "0.0.0.0/0"
-          IpProtocol: "TCP"
       VpcId: !Ref 'VpcId'
       Tags:
         - Key: Name
@@ -50,8 +48,6 @@ Resources:
           FromPort: "0"
           ToPort: "65535"
           CidrIp: "0.0.0.0/0"
-        - CidrIp: "0.0.0.0/0"
-          IpProtocol: "TCP"
       VpcId: !Ref 'VpcId'
       Tags:
         - Key: Name
