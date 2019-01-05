@@ -16,93 +16,96 @@ Resources:
     Properties:
       GroupDescription: !Sub ${AWS::StackName}-zookeeper
       SecurityGroupIngress:
-        - CidrIp: "0.0.0.0/0"
+        -
           IpProtocol: "TCP"
+          FromPort: "-1"
+          ToPort: "-1"
+          CidrIp: "0.0.0.0/0"
       VpcId: !Ref 'VpcId'
       Tags:
         - Key: Name
           Value: !Join [ ':', [ !Ref 'AWS::StackName', 'ZookeeperSG' ] ]
 
-  KafkaSG:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: !Sub ${AWS::StackName}-kafka
-      SecurityGroupIngress:
-        - CidrIp: "0.0.0.0/0"
-          IpProtocol: "TCP"
-      VpcId: !Ref 'VpcId'
-      Tags:
-        - Key: Name
-          Value: !Join [ ':', [ !Ref 'AWS::StackName', 'KafkaSG' ] ]
-
-  FlinkSG:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: !Sub ${AWS::StackName}-flink
-      SecurityGroupIngress:
-        - CidrIp: "0.0.0.0/0"
-          IpProtocol: "TCP"
-      VpcId: !Ref 'VpcId'
-      Tags:
-        - Key: Name
-          Value: !Join [ ':', [ !Ref 'AWS::StackName', 'FlinkSG' ] ]
-
-  SchemaRegistrySG:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: !Sub ${AWS::StackName}-schemaregistry
-      SecurityGroupIngress:
-        - CidrIp: "0.0.0.0/0"
-          IpProtocol: "TCP"
-      VpcId: !Ref 'VpcId'
-      Tags:
-        - Key: Name
-          Value: !Join [ ':', [ !Ref 'AWS::StackName', 'SchemaRegistrySG' ] ]
-
-  TrafficSimulatorSG:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: !Sub ${AWS::StackName}-trafficsim
-      SecurityGroupIngress:
-        - CidrIp: "0.0.0.0/0"
-          IpProtocol: "TCP"
-      VpcId: !Ref 'VpcId'
-      Tags:
-        - Key: Name
-          Value: !Join [ ':', [ !Ref 'AWS::StackName', 'TrafficSimulatorSG' ] ]
-
-  BastionSG:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: !Sub ${AWS::StackName}-bastion
-      SecurityGroupIngress:
-        - CidrIp: "0.0.0.0/0"
-          IpProtocol: "TCP"
-      VpcId: !Ref 'VpcId'
-      Tags:
-        - Key: Name
-          Value: !Join [ ':', [ !Ref 'AWS::StackName', 'BastionSG' ] ]
-
-  OperationsSG:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: !Sub ${AWS::StackName}-operations
-      SecurityGroupIngress:
-        - CidrIp: "0.0.0.0/0"
-          IpProtocol: "TCP"
-      VpcId: !Ref 'VpcId'
-      Tags:
-        - Key: Name
-          Value: !Join [ ':', [ !Ref 'AWS::StackName', 'OperationsSG' ] ]
-
-  FrontdoorSG:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: !Sub ${AWS::StackName}-frontdoor
-      SecurityGroupIngress:
-        - CidrIp: "0.0.0.0/0"
-          IpProtocol: "TCP"
-      VpcId: !Ref 'VpcId'
-      Tags:
-        - Key: Name
-          Value: !Join [ ':', [ !Ref 'AWS::StackName', 'FrontdoorSG' ] ]
+#  KafkaSG:
+#    Type: AWS::EC2::SecurityGroup
+#    Properties:
+#      GroupDescription: !Sub ${AWS::StackName}-kafka
+#      SecurityGroupIngress:
+#        - CidrIp: "0.0.0.0/0"
+#          IpProtocol: "TCP"
+#      VpcId: !Ref 'VpcId'
+#      Tags:
+#        - Key: Name
+#          Value: !Join [ ':', [ !Ref 'AWS::StackName', 'KafkaSG' ] ]
+#
+#  FlinkSG:
+#    Type: AWS::EC2::SecurityGroup
+#    Properties:
+#      GroupDescription: !Sub ${AWS::StackName}-flink
+#      SecurityGroupIngress:
+#        - CidrIp: "0.0.0.0/0"
+#          IpProtocol: "TCP"
+#      VpcId: !Ref 'VpcId'
+#      Tags:
+#        - Key: Name
+#          Value: !Join [ ':', [ !Ref 'AWS::StackName', 'FlinkSG' ] ]
+#
+#  SchemaRegistrySG:
+#    Type: AWS::EC2::SecurityGroup
+#    Properties:
+#      GroupDescription: !Sub ${AWS::StackName}-schemaregistry
+#      SecurityGroupIngress:
+#        - CidrIp: "0.0.0.0/0"
+#          IpProtocol: "TCP"
+#      VpcId: !Ref 'VpcId'
+#      Tags:
+#        - Key: Name
+#          Value: !Join [ ':', [ !Ref 'AWS::StackName', 'SchemaRegistrySG' ] ]
+#
+#  TrafficSimulatorSG:
+#    Type: AWS::EC2::SecurityGroup
+#    Properties:
+#      GroupDescription: !Sub ${AWS::StackName}-trafficsim
+#      SecurityGroupIngress:
+#        - CidrIp: "0.0.0.0/0"
+#          IpProtocol: "TCP"
+#      VpcId: !Ref 'VpcId'
+#      Tags:
+#        - Key: Name
+#          Value: !Join [ ':', [ !Ref 'AWS::StackName', 'TrafficSimulatorSG' ] ]
+#
+#  BastionSG:
+#    Type: AWS::EC2::SecurityGroup
+#    Properties:
+#      GroupDescription: !Sub ${AWS::StackName}-bastion
+#      SecurityGroupIngress:
+#        - CidrIp: "0.0.0.0/0"
+#          IpProtocol: "TCP"
+#      VpcId: !Ref 'VpcId'
+#      Tags:
+#        - Key: Name
+#          Value: !Join [ ':', [ !Ref 'AWS::StackName', 'BastionSG' ] ]
+#
+#  OperationsSG:
+#    Type: AWS::EC2::SecurityGroup
+#    Properties:
+#      GroupDescription: !Sub ${AWS::StackName}-operations
+#      SecurityGroupIngress:
+#        - CidrIp: "0.0.0.0/0"
+#          IpProtocol: "TCP"
+#      VpcId: !Ref 'VpcId'
+#      Tags:
+#        - Key: Name
+#          Value: !Join [ ':', [ !Ref 'AWS::StackName', 'OperationsSG' ] ]
+#
+#  FrontdoorSG:
+#    Type: AWS::EC2::SecurityGroup
+#    Properties:
+#      GroupDescription: !Sub ${AWS::StackName}-frontdoor
+#      SecurityGroupIngress:
+#        - CidrIp: "0.0.0.0/0"
+#          IpProtocol: "TCP"
+#      VpcId: !Ref 'VpcId'
+#      Tags:
+#        - Key: Name
+#          Value: !Join [ ':', [ !Ref 'AWS::StackName', 'FrontdoorSG' ] ]
