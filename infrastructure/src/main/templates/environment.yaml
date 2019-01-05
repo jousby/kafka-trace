@@ -9,7 +9,7 @@ Parameters:
 
 Resources:
   #############################################################################
-  # Create the required Security Groups
+  # 1. Create the required Security Groups
   #############################################################################
   ZookeeperSG:
     Type: AWS::EC2::SecurityGroup
@@ -122,3 +122,40 @@ Resources:
       Tags:
         - Key: Name
           Value: !Join [ ':', [ !Ref 'AWS::StackName', 'FrontdoorSG' ] ]
+
+  #############################################################################
+  # 2. Create the zookeeper cluster
+  #############################################################################
+
+  # 1 ALB (autoheal alb)
+  AutohealALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Scheme: internet-facing
+      Subnets:
+        - Ref: PublicSubnet1
+        - Ref: PublicSubnet2
+        - Ref: PublicSubnet3
+      LoadBalancerAttributes:
+        - Key: idle_timeout.timeout_seconds
+          Value: '50'
+      SecurityGroups:
+        - Ref: FrontdoorSG
+
+  # 3 ASG
+  ZookeeperAASG:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AvailabilityZones:
+        Fn::GetAZs: ''
+      LaunchConfigurationName:
+        Ref: 'LaunchConfig'
+      MinSize: '1'
+      MaxSize: '1'
+      LoadBalancerNames:
+        - Ref: AutohealALB
+      MetricsCollection:
+        - Granularity: '1Minute'
+          Metrics:
+            - 'GroupMinSize'
+            - 'GroupMaxSize'
