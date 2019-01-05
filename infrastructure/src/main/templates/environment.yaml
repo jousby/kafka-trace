@@ -5,12 +5,24 @@ Parameters:
   VpcId:
     Description: Which VPC are we deploying this stack into.
     Type: String
-    Default: vpc-0b59faaccf329a10f
+
+  PublicSubnetId1:
+    Description: Public subnet in AZ 1
+    Type: String
+
+  PublicSubnetId2:
+    Description: Public subnet in AZ 2
+    Type: String
+
+  PublicSubnetId3:
+    Description: Public subnet in AZ 3
+    Type: String
 
 Resources:
   #############################################################################
   # 1. Create the required Security Groups
   #############################################################################
+
   ZookeeperSG:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -133,29 +145,29 @@ Resources:
     Properties:
       Scheme: internet-facing
       Subnets:
-        - Ref: PublicSubnet1
-        - Ref: PublicSubnet2
-        - Ref: PublicSubnet3
+        - Ref: PublicSubnetId1
+        - Ref: PublicSubnetId2
+        - Ref: PublicSubnetId3
       LoadBalancerAttributes:
         - Key: idle_timeout.timeout_seconds
           Value: '50'
       SecurityGroups:
         - Ref: FrontdoorSG
 
-  # 3 ASG
-  ZookeeperAASG:
-    Type: AWS::AutoScaling::AutoScalingGroup
-    Properties:
-      AvailabilityZones:
-        Fn::GetAZs: ''
-      LaunchConfigurationName:
-        Ref: 'LaunchConfig'
-      MinSize: '1'
-      MaxSize: '1'
-      LoadBalancerNames:
-        - Ref: AutohealALB
-      MetricsCollection:
-        - Granularity: '1Minute'
-          Metrics:
-            - 'GroupMinSize'
-            - 'GroupMaxSize'
+#  # 3 ASG
+#  ZookeeperAASG:
+#    Type: AWS::AutoScaling::AutoScalingGroup
+#    Properties:
+#      AvailabilityZones:
+#        Fn::GetAZs: ''
+#      LaunchConfigurationName:
+#        Ref: 'LaunchConfig'
+#      MinSize: '1'
+#      MaxSize: '1'
+#      LoadBalancerNames:
+#        - Ref: AutohealALB
+#      MetricsCollection:
+#        - Granularity: '1Minute'
+#          Metrics:
+#            - 'GroupMinSize'
+#            - 'GroupMaxSize'
