@@ -5,6 +5,7 @@ Parameters:
   VpcId:
     Description: Which VPC are we deploying this stack into.
     Type: String
+    Default: vpc-0b59faaccf329a10f
 
 Resources:
   #############################################################################
