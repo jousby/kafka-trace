@@ -4,7 +4,7 @@ Description: >
 Parameters:
   VpcId:
     Description: Which VPC are we deploying this stack into.
-    Type: String
+    Type: AWS::EC2::VPC::Id
 
   PublicSubnetId1:
     Description: Public subnet in AZ 1
@@ -205,3 +205,4 @@ Resources:
       Tags:
         - Key: Name
           Value: !Join [ ':', [ !Ref 'AWS::StackName', 'Zookeeper1ASG' ] ]
+          PropagateAtLaunch: true
