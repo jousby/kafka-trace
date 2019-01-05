@@ -2,24 +2,107 @@ Description: >
   Parent script for standing up a new kafka tracing environment
 
 Parameters:
-  BranchName:
-    Description: Which git branch are we pulling the nested templates from.
-    Type: String
-
-  NetworkStackName:
-    Description: Name of the stack in which the vpc and subnets were created.
-    Type: String
-
-  SecurityStackName:
-    Description: Name of the stack in which the security groups were created.
+  VpcId:
+    Description: Which VPC are we deploying this stack into.
     Type: String
 
 
 Resources:
-  AutohealALB:
-    Type: AWS::CloudFormation::Stack
+  #############################################################################
+  # Create the required Security Groups
+  #############################################################################
+  ZookeeperSG:
+    Type: AWS::EC2::SecurityGroup
     Properties:
-      TemplateURL: !Sub https://s3.amazonaws.com/${BranchName}/stage-1-autoheal-alb.yaml
-      Parameters:
-        ALBName: !Ref ALBName
-        StackName: !Ref AWS::StackName
+      GroupDescription: !Sub ${AWS::StackName}-zookeeper
+      SecurityGroupIngress:
+        - CidrIp: "0.0.0.0/0"
+          IpProtocol: "TCP"
+      VpcId: !Ref 'VpcId'
+      Tags:
+        - Key: Name
+          Value: !Join [ ':', [ !Ref 'AWS::StackName', 'ZookeeperSG' ] ]
+
+  KafkaSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub ${AWS::StackName}-kafka
+      SecurityGroupIngress:
+        - CidrIp: "0.0.0.0/0"
+          IpProtocol: "TCP"
+      VpcId: !Ref 'VpcId'
+      Tags:
+        - Key: Name
+          Value: !Join [ ':', [ !Ref 'AWS::StackName', 'KafkaSG' ] ]
+
+  FlinkSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub ${AWS::StackName}-flink
+      SecurityGroupIngress:
+        - CidrIp: "0.0.0.0/0"
+          IpProtocol: "TCP"
+      VpcId: !Ref 'VpcId'
+      Tags:
+        - Key: Name
+          Value: !Join [ ':', [ !Ref 'AWS::StackName', 'FlinkSG' ] ]
+
+  SchemaRegistrySG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub ${AWS::StackName}-schemaregistry
+      SecurityGroupIngress:
+        - CidrIp: "0.0.0.0/0"
+          IpProtocol: "TCP"
+      VpcId: !Ref 'VpcId'
+      Tags:
+        - Key: Name
+          Value: !Join [ ':', [ !Ref 'AWS::StackName', 'SchemaRegistrySG' ] ]
+
+  TrafficSimulatorSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub ${AWS::StackName}-trafficsim
+      SecurityGroupIngress:
+        - CidrIp: "0.0.0.0/0"
+          IpProtocol: "TCP"
+      VpcId: !Ref 'VpcId'
+      Tags:
+        - Key: Name
+          Value: !Join [ ':', [ !Ref 'AWS::StackName', 'TrafficSimulatorSG' ] ]
+
+  BastionSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub ${AWS::StackName}-bastion
+      SecurityGroupIngress:
+        - CidrIp: "0.0.0.0/0"
+          IpProtocol: "TCP"
+      VpcId: !Ref 'VpcId'
+      Tags:
+        - Key: Name
+          Value: !Join [ ':', [ !Ref 'AWS::StackName', 'BastionSG' ] ]
+
+  OperationsSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub ${AWS::StackName}-operations
+      SecurityGroupIngress:
+        - CidrIp: "0.0.0.0/0"
+          IpProtocol: "TCP"
+      VpcId: !Ref 'VpcId'
+      Tags:
+        - Key: Name
+          Value: !Join [ ':', [ !Ref 'AWS::StackName', 'OperationsSG' ] ]
+
+  FrontdoorSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub ${AWS::StackName}-frontdoor
+      SecurityGroupIngress:
+        - CidrIp: "0.0.0.0/0"
+          IpProtocol: "TCP"
+      VpcId: !Ref 'VpcId'
+      Tags:
+        - Key: Name
+          Value: !Join [ ':', [ !Ref 'AWS::StackName', 'FrontdoorSG' ] ]
