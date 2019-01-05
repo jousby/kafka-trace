@@ -6,7 +6,6 @@ Parameters:
     Description: Which VPC are we deploying this stack into.
     Type: String
 
-
 Resources:
   #############################################################################
   # Create the required Security Groups
