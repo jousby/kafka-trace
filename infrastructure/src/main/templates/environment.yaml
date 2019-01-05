@@ -185,9 +185,6 @@ Resources:
         - DeviceName: "/dev/sda1"
           Ebs:
             VolumeSize: '10'
-      Tags:
-        - Key: Name
-          Value: !Join [ ':', [ !Ref 'AWS::StackName', 'ZookeeperLaunchConfig' ] ]
 
   Zookeeper1ASG:
     Type: AWS::AutoScaling::AutoScalingGroup
