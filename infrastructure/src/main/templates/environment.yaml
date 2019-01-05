@@ -179,7 +179,7 @@ Resources:
     Properties:
       ImageId: !Ref 'AmazonLinux2Ami'
       SecurityGroups:
-        - Ref: ZookeeperSG
+        - Ref: FrontdoorSG
       InstanceType: m4.large
       BlockDeviceMappings:
         - DeviceName: "/dev/sda1"
