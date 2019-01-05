@@ -155,7 +155,7 @@ Resources:
         - Ref: FrontdoorSG
 
 #  # 3 ASG
-#  ZookeeperAASG:
+#  Zookeeper1ASG:
 #    Type: AWS::AutoScaling::AutoScalingGroup
 #    Properties:
 #      AvailabilityZones:
