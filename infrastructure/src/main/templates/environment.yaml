@@ -203,7 +203,7 @@ Resources:
       VpcId: !Ref 'VpcId'
       TargetGroupAttributes:
         - Key: deregistration_delay.timeout_seconds
-          Value: !Ref LoadBalancerDeregistrationDelay
+          Value: 300
 
   Zookeeper1Listener:
     Type: AWS::ElasticLoadBalancingV2::Listener
