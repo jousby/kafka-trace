@@ -173,7 +173,6 @@ Resources:
         - Key: Name
           Value: !Join [ ':', [ !Ref 'AWS::StackName', 'ALB' ] ]
 
-  # Autohealing pattern for Zookeeper Node 1
   ZookeeperLaunchConfig:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
@@ -186,7 +185,37 @@ Resources:
           Ebs:
             VolumeSize: '10'
 
-  Zookeeper1ASG:
+
+  # Autohealing pattern for Zookeeper Node 1
+  Zookeeper1TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 15
+      HealthCheckPath: '/'
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 10
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 2
+      Matcher:
+        HttpCode: '200-299'
+      Port: 80
+      Protocol: HTTP
+      VpcId: !Ref 'VpcId'
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: !Ref LoadBalancerDeregistrationDelay
+
+  Zookeeper1Listener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - TargetGroupArn: !Ref Zookeeper1TargetGroup
+          Type: forward
+      LoadBalancerArn: !Ref AutohealALB
+      Port: 80
+      Protocol: HTTP
+
+  Zookeeper1AutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
       AvailabilityZones:
@@ -195,8 +224,8 @@ Resources:
         Ref: ZookeeperLaunchConfig
       MinSize: '1'
       MaxSize: '1'
-      LoadBalancerNames:
-        - Ref: AutohealALB
+      TargetGroupARNs:
+        - Ref: Zookeeper1TargetGroup
       MetricsCollection:
         - Granularity: '1Minute'
           Metrics:
